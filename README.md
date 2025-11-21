@@ -247,3 +247,42 @@ Before you submit your solution, you need to save your progress with git.
 
 CodeGrade will grade your lab using the same tests as are provided in the 
 `testing/` directory.
+
+---
+
+## Developer Notes
+
+Added Review model for Many-to-Many with payload between Customer & Item.
+Implemented association_proxy:
+- Customer.items → through reviews → item
+
+Implemented Marshmallow schemas for serialization:
+- Hide recursive inverse fields to prevent circular nesting
+- Defined explicit fields + unknown = EXCLUDE
+
+### Environment Fix
+
+Ran into a **broken Pipfile** on clone — Flask dependency was malformed (`flask2.2.2` instead of `flask = "2.2.2"`).  
+Because of that, Pipenv refused to install anything and virtualenv builds failed.
+
+Solution (inside `server/` directory):
+
+```
+pipenv --rm 2>/dev/null || true
+rm -rf ~/.local/share/virtualenvs/*serialization-lab*
+pipenv --clear
+pipenv install --skip-lock
+pipenv shell
+
+# Then install correct deps manually:
+pip install \
+  "flask==2.2.2" \
+  "flask-migrate==3.1.0" \
+  "flask-sqlalchemy==3.0.3" \
+  "Werkzeug==2.2.2" \
+  "pytest==7.1.3" \
+  "importlib-metadata==6.0.0" \
+  "importlib-resources==5.10.0" \
+  "Faker==14.2.0" \
+  "marshmallow==3.20.1"
+```
